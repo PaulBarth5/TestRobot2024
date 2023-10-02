@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Virtuel</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #robot {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      transition: all 0.5s ease-in-out;
+    }
+    button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .horizontal-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="sendCommand('forward')">Avancer</button>
+  
+  <div class="horizontal-buttons">
+    <button onclick="sendCommand('left')">Tourner à gauche</button>
+    <div id="robot"></div>
+    <button onclick="sendCommand('right')">Tourner à droite</button>
+  </div>
+  
+  <button onclick="sendCommand('backward')">Reculer</button>
+
+  <script>
+    var robot = document.getElementById('robot');
+    var robotX = 0;
+    var robotY = 0;
+
+    function moveRobot(direction) {
+      switch (direction) {
+        case 'up':
+          robotY -= 50;
+          break;
+        case 'down':
+          robotY += 50;
+          break;
+        case 'left':
+          robotX -= 50;
+          break;
+        case 'right':
+          robotX += 50;
+          break;
+      }
+
+      robot.style.transform = 'translate(' + robotX + 'px, ' + robotY + 'px)';
+    }
+
+    function sendCommand(direction) {
+      moveRobot(direction);
+
+      // Envoyer la commande à la carte Arduino via une requête HTTP
+      var url = 'http://adresse_ip_arduino/commande?direction=' + direction;
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('La requête a échoué.');
+          }
+          console.log('Commande envoyée au robot:', direction);
+        })
+        .catch(error => {
+          console.error('Erreur lors de l\'envoi de la commande:', error);
+        });
+    }
+  </script>
+</body>
+</html>
